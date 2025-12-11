@@ -1,21 +1,29 @@
-const express=require("express");
-const mongoose=require("mongoose");
-const cors=require("cors");
-const app=express();
-const port=2727;
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const app = express();
+const port = 2727;
 
 app.use(cors());
 app.use(express.json());
-const mongoURL=`mongodb://127.0.0.1:27017/school`;
+app.use(express.urlencoded({ extended: true }));
 
-mongoose.connect(mongoURL)
-.then(()=>console.log(`mongodb is connected`))
-.catch((err)=>console.log(err));
+const mongoURL = `mongodb://127.0.0.1:27017/school`;
 
+mongoose
+  .connect(mongoURL)
+  .then(() => console.log(`mongodb is connected`))
+  .catch((err) => console.log(err));
 
-const schoolUserController=require("./routes/schoolUserController");
-app.use("/schoolUser",schoolUserController);
+const schoolUserController = require("./routes/schoolUserController");
+app.use("/schoolUser", schoolUserController);
 
-app.listen(port,()=>{
+const schoolTeacherController = require("./routes/schoolTeacherController");
+app.use("/schoolTeacher", schoolTeacherController);
+
+const teacherCourse = require("./routes/teacherCourseRoute");
+app.use("/teacherCourses", teacherCourse);
+
+app.listen(port, () => {
   console.log(`server is running on ${port}`);
-})
+});
