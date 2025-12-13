@@ -38,7 +38,7 @@ exports.teacherLogin=async(req,res)=>{
     return res.status(400).send({message: "invalid user"});
   }
 
-  const token = jwt.sign({ email }, secretKey);
+  const token = jwt.sign({ email }, secretKey, {expiresIn: "7d"});
     console.log("<<<<token<<<", token);
     res
       .status(200)
@@ -78,6 +78,36 @@ exports.teacherReset=async(req,res)=>{
     return res.status(202).send({message: "reset successfully",
       data: result
     })
+  }
+
+}
+
+exports.teacherForget=async(req,res)=>{
+  const {email,newPassword}=req.body;
+  if(!(email&&newPassword)){
+    return res.status(400).send({message: "all input field are required"});
+  }
+
+  const alreadyEmail=await schoolTeacher.findOne({email});
+  console.log(`>>>alreadyEmail>>`,alreadyEmail);
+
+  if(!alreadyEmail){
+    return res.status(400).send({message: "invalid user"});
+  }
+
+  const salt=bcrypt.genSaltSync(10);
+  const hash=bcrypt.hashSync(newPassword,salt);
+
+  const data={
+    password: hash
+  }
+
+  const id=alreadyEmail._id;
+  const result=await schoolTeacher.findOneAndUpdate(id,data);
+  console.log(`>>>>>result>>>`,result);
+
+  if(result){
+    return res.status(202).send({message: "forget successfully",result});
   }
 
 }

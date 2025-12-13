@@ -1,211 +1,248 @@
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import CreateCourseModal from "./CreateCourseModal";
 
 const TeacherDashboard = () => {
-  const [teacher, setTeacher] = useState(null);
+  const [courses, setCourses] = useState([]);
+  const [showCreate, setShowCreate] = useState(false);
+
+  const navigate = useNavigate();
+
+  const teacher = JSON.parse(localStorage.getItem("currentTeacher"));
+  const teacherId = teacher?._id;
+  const token = localStorage.getItem("teacherToken");
 
   useEffect(() => {
-    const t = localStorage.getItem("currentTeacher");
-    if (t) {
-      try {
-        setTeacher(JSON.parse(t));
-      } catch (err) {
-        console.log(err);
-      }
+    if (!teacherId || !token) {
+      navigate("/teacher/login");
+      return;
     }
-  }, []);
+    fetchCourses();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [teacherId, token]);
 
-  const sampleCourses = [
-    {
-      id: 1,
-      title: "Class 10 Maths - Term 1",
-      students: 120,
-      progress: 78,
-      status: "Active",
-    },
-    {
-      id: 2,
-      title: "Class 12 Physics - Boards Batch",
-      students: 85,
-      progress: 62,
-      status: "Active",
-    },
-    {
-      id: 3,
-      title: "Class 9 Science - Foundation",
-      students: 40,
-      progress: 35,
-      status: "Draft",
-    },
-  ];
+  const fetchCourses = async () => {
+    try {
+      const res = await axios.get(
+        "http://127.0.0.1:2727/teacherCourses/myCourses",
+        {
+          params: { teacherId },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      ); // [web:114][web:13]
+      setCourses(res.data.data || []);
+    } catch (err) {
+      console.error(">>> fetchCourses error >>>", err);
+    }
+  };
 
-  const upcomingTasks = [
-    { id: 1, label: "Upload notes for Chapter 5", course: "Class 10 Maths" },
-    { id: 2, label: "Create test for Electrostatics", course: "Class 12 Physics" },
-    { id: 3, label: "Review doubts from yesterday", course: "All Courses" },
-  ];
+  const handleLogout = () => {
+    localStorage.removeItem("teacherToken");
+    localStorage.removeItem("currentTeacher");
+    navigate("/teacher/login");
+  };
+
+  const resetHandle = (e) => {
+    e.preventDefault();
+    navigate("/teacher/reset");
+  };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-50">
-      {/* Top bar */}
-      <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+    <div
+      className="
+        min-h-screen w-full
+        bg-cover bg-center bg-no-repeat
+        relative
+      "
+      style={{
+        backgroundImage:
+          "url('https://images.pexels.com/photos/3184328/pexels-photo-3184328.jpeg')",
+      }}
+    >
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-950/95 via-slate-900/92 to-indigo-900/85" />
+      <div className="pointer-events-none absolute inset-x-4 inset-y-6 border border-white/5 rounded-[32px] bg-slate-900/25" />
+
+      {/* CONTENT */}
+      <div className="relative z-10 min-h-screen max-w-7xl mx-auto px-6 py-6 flex flex-col gap-8">
+        {/* Header */}
+        <header className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-lg font-semibold shadow-lg">
-              {teacher?.name ? teacher.name.charAt(0).toUpperCase() : "T"}
+            <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-xl">
+              <span className="text-white text-lg font-bold">T</span>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-[0.25em] text-slate-400">
-                Teacher Dashboard
+              <p className="text-xs uppercase tracking-[0.18em] text-slate-400">
+                Teacher Workspace
               </p>
-              <h1 className="text-sm font-semibold">
-                {teacher?.name || "Teacher Name"}
+              <h1 className="text-2xl md:text-3xl font-bold text-white">
+                Teacher Dashboard
               </h1>
+              <p className="text-xs md:text-sm text-slate-400">
+                Manage your school courses, earnings and students from here.
+              </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-4 text-xs">
-            <div className="hidden sm:flex flex-col items-end">
-              <span className="text-slate-400">Logged in as</span>
-              <span className="font-medium">
-                {teacher?.email || "teacher@school.com"}
-              </span>
-            </div>
-
-            <Link
-              to="/teacher/reset"
-              className="px-3 py-1.5 rounded-full border border-slate-700 text-xs hover:bg-slate-800 transition"
-            >
-              Reset password
-            </Link>
+          <div className="flex items-center gap-4">
+            {teacher && (
+              <div className="hidden sm:block text-right">
+                <p className="text-sm text-slate-200 font-semibold">
+                  {teacher.name}
+                </p>
+                <p className="text-xs text-slate-400">{teacher.email}</p>
+              </div>
+            )}
 
             <button
-              onClick={() => {
-                localStorage.removeItem("teacherToken");
-                localStorage.removeItem("currentTeacher");
-                window.location.href = "/teacher/login";
-              }}
-              className="px-3 py-1.5 rounded-full border border-red-500/70 text-xs text-red-200 hover:bg-red-600/10 transition"
+              onClick={resetHandle}
+              className="px-4 py-2 rounded-2xl text-xs font-semibold bg-white/5 border border-white/20 text-slate-100 hover:bg-slate-900/60 transition-colors"
+            >
+              Reset Password
+            </button>
+
+            <button
+              onClick={handleLogout}
+              className="px-5 py-2 rounded-2xl text-xs font-semibold bg-red-500/80 hover:bg-red-600 text-white shadow-lg transition-colors"
             >
               Logout
             </button>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Main */}
-      <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
-        {/* Welcome + quick stats */}
-        <section className="grid md:grid-cols-3 gap-5">
-          <div className="md:col-span-2 bg-gradient-to-br from-indigo-600/80 via-purple-600/70 to-sky-500/80 rounded-3xl p-6 shadow-xl relative overflow-hidden">
-            <div className="absolute -right-10 -top-10 h-32 w-32 bg-white/10 rounded-full blur-3xl" />
-            <div className="absolute right-6 bottom-4 h-16 w-16 border border-white/20 rounded-2xl" />
-            <p className="text-xs uppercase tracking-[0.25em] text-indigo-100 mb-2">
-              Welcome back
+        {/* Stats */}
+        <section className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          <div className="bg-white/8 backdrop-blur-2xl border border-white/15 rounded-3xl p-6 shadow-lg">
+            <p className="text-xs text-slate-300 mb-1">Total Courses</p>
+            <p className="text-3xl font-bold text-indigo-300">
+              {courses.length}
             </p>
-            <h2 className="text-2xl font-semibold mb-1">
-              {teacher?.name || "Teacher"},
-            </h2>
-            <p className="text-sm text-indigo-100/90 mb-4">
-              Aaj ke classes, tests aur student progress yahi se control karein.
+            <p className="text-[11px] text-slate-400 mt-2">
+              Syllabus-based courses you have created.
             </p>
-            <div className="flex flex-wrap gap-4 text-xs text-indigo-50/90">
-              <span className="px-3 py-1 rounded-full bg-white/10 border border-white/20">
-                Courses active: 3
-              </span>
-              <span className="px-3 py-1 rounded-full bg-white/10 border border-white/20">
-                Total students: 245
-              </span>
-              <span className="px-3 py-1 rounded-full bg-white/10 border border-white/20">
-                Pending tasks: {upcomingTasks.length}
-              </span>
-            </div>
           </div>
 
-          <div className="bg-slate-900/70 border border-slate-800 rounded-3xl p-5 flex flex-col justify-between shadow-lg">
+          <div className="bg-white/8 backdrop-blur-2xl border border-white/15 rounded-3xl p-6 shadow-lg">
+            <p className="text-xs text-slate-300 mb-1">Total Earnings</p>
+            <p className="text-3xl font-bold text-emerald-300">
+              ₹{courses.reduce((sum, c) => sum + (c.price || 0), 0)}
+            </p>
+            <p className="text-[11px] text-slate-400 mt-2">
+              Approx revenue from all active courses.
+            </p>
+          </div>
+
+          <div className="bg-white/8 backdrop-blur-2xl border border-white/15 rounded-3xl p-6 shadow-lg">
+            <p className="text-xs text-slate-300 mb-1">Published</p>
+            <p className="text-3xl font-bold text-purple-300">
+              {courses.filter((c) => c.status === "published").length}
+            </p>
+            <p className="text-[11px] text-slate-400 mt-2">
+              Courses visible to students right now.
+            </p>
+          </div>
+        </section>
+
+        {/* Courses */}
+        <section className="bg-white/8 backdrop-blur-2xl border border-white/15 rounded-3xl p-7 shadow-lg flex-1">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-sm font-semibold mb-3">Today’s Snapshot</h3>
-              <ul className="space-y-2 text-xs text-slate-300">
-                <li>• 2 live classes scheduled</li>
-                <li>• 1 test result pending review</li>
-                <li>• 6 new doubts from students</li>
-              </ul>
+              <h2 className="text-xl md:text-2xl font-bold text-white">
+                Your Courses
+              </h2>
+              <p className="text-xs text-slate-400 mt-1">
+                Manage content, pricing and visibility for each course.
+              </p>
             </div>
-            <button className="mt-4 w-full text-xs font-semibold py-2.5 rounded-2xl bg-indigo-500 hover:bg-indigo-600 transition">
+            <button
+              onClick={() => setShowCreate(true)}
+              className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold px-6 py-2.5 rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-200 text-sm"
+            >
               + Create New Course
             </button>
           </div>
-        </section>
 
-        {/* Courses + Tasks */}
-        <section className="grid md:grid-cols-3 gap-5">
-          {/* Courses list */}
-          <div className="md:col-span-2 bg-slate-900/60 border border-slate-800 rounded-3xl p-5 shadow-lg">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold">Your Courses</h3>
-              <button className="text-[11px] text-indigo-300 hover:text-indigo-200">
-                View all
-              </button>
+          {courses.length === 0 ? (
+            <div className="text-center py-16">
+              <h3 className="text-lg font-semibold text-white mb-1">
+                No courses yet
+              </h3>
+              <p className="text-slate-400 text-sm">
+                Create your first course to get started.
+              </p>
             </div>
-            <div className="space-y-3">
-              {sampleCourses.map((course) => (
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {courses.map((course) => (
                 <div
-                  key={course.id}
-                  className="flex items-center justify-between gap-3 bg-slate-900/80 border border-slate-800 rounded-2xl px-4 py-3 hover:border-indigo-500/60 transition"
+                  key={course._id}
+                  className="group bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-5 hover:bg-white/20 hover:border-white/30 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
                 >
-                  <div>
-                    <p className="text-sm font-medium">{course.title}</p>
-                    <p className="text-xs text-slate-400">
-                      {course.students} students • {course.status}
-                    </p>
-                    <div className="mt-2 w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full ${
-                          course.status === "Draft"
-                            ? "bg-slate-500"
-                            : "bg-gradient-to-r from-indigo-400 to-emerald-400"
-                        }`}
-                        style={{ width: `${course.progress}%` }}
-                      />
-                    </div>
+                  <div className="relative mb-4">
+                    <img
+                      src={course.thumbnail}
+                      alt={course.title}
+                      className="w-full h-36 object-cover rounded-2xl"
+                    />
+                    <span
+                      className={`absolute top-3 right-3 px-3 py-1 rounded-full text-[11px] font-semibold ${
+                        course.status === "published"
+                          ? "bg-emerald-500/90 text-white"
+                          : "bg-amber-500/90 text-white"
+                      }`}
+                    >
+                      {course.status}
+                    </span>
                   </div>
-                  <button className="text-[11px] px-3 py-1.5 rounded-full border border-slate-600 hover:border-indigo-500 text-slate-200 hover:text-indigo-200 transition">
-                    Open
-                  </button>
+
+                  <h3 className="font-bold text-white text-[15px] mb-1 line-clamp-2 group-hover:text-indigo-300 transition-colors">
+                    {course.title}
+                  </h3>
+
+                  <p className="text-xs text-slate-300 mb-3 line-clamp-2">
+                    {course.description}
+                  </p>
+
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-emerald-300 font-semibold text-lg">
+                      ₹{course.price}
+                    </span>
+                    <span className="text-[11px] text-slate-300">
+                      {course.grade} • {course.subject}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between text-[11px] text-slate-400 mb-4">
+                    <span>{course.totalLectures} lectures</span>
+                    <span>{course.totalDurationInMinutes} min</span>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button 
+                    onClick={()=>navigate("/edit")}
+                    className="flex-1 bg-indigo-500/20 hover:bg-indigo-500/40 text-indigo-200 font-medium py-1.5 px-3 rounded-2xl border border-indigo-500/30 transition-all duration-200 text-xs">
+                      Edit
+                    </button>
+                    <button className="flex-1 bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-200 font-medium py-1.5 px-3 rounded-2xl border border-emerald-500/30 transition-all duration-200 text-xs">
+                      View
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
-          </div>
-
-          {/* Tasks / Tip */}
-          <div className="space-y-4">
-            <div className="bg-slate-900/60 border border-slate-800 rounded-3xl p-5 shadow-lg">
-              <h3 className="text-sm font-semibold mb-3">Upcoming tasks</h3>
-              <ul className="space-y-2 text-xs text-slate-300">
-                {upcomingTasks.map((task) => (
-                  <li
-                    key={task.id}
-                    className="p-2 rounded-2xl bg-slate-900/80 border border-slate-800"
-                  >
-                    <p>{task.label}</p>
-                    <p className="text-[10px] text-slate-500 mt-1">
-                      {task.course}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="bg-indigo-500/15 border border-indigo-500/40 rounded-3xl p-4 text-xs text-indigo-100 shadow-lg">
-              <p className="font-semibold mb-1">Tip for today</p>
-              <p>
-                Short 10–15 minute chapter recap videos students ke liye zyada
-                effective hote hain. Ek recap playlist create kar ke dekho.
-              </p>
-            </div>
-          </div>
+          )}
         </section>
-      </main>
+      </div>
+
+      {showCreate && (
+        <CreateCourseModal
+          onClose={() => setShowCreate(false)}
+          onCreated={fetchCourses}
+        />
+      )}
     </div>
   );
 };

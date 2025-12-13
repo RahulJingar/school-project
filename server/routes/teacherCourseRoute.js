@@ -1,9 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const teacherCourse = require("../controller/teacherCourseController");
+const auth = require("../middleware/auth");
 
 // prefix: /teacherCourses
 router.post("/create", teacherCourse.createCourse);
-router.get("/my-courses", teacherCourse.getMyCourses);
+router.patch("/teacherCourseUpdate/:id", teacherCourse.teacherCourseUpdate);
+router.get("/myCourses",auth, teacherCourse.getMyCourses);
 
 module.exports = router;

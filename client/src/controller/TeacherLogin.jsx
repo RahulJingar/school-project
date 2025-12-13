@@ -8,7 +8,6 @@ const TeacherLogin = () => {
     password: "",
   });
 
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const formHandler = (e) => {
@@ -27,59 +26,85 @@ const TeacherLogin = () => {
     }
 
     try {
-      setLoading(true);
-
       const res = await axios.post(
         "http://127.0.0.1:2727/schoolTeacher/teacherLogin",
         formData
-      ); // [web:41][web:60]
+      );
 
       console.log(">>> teacher login res >>>", res.data);
 
       const { data, token } = res.data;
 
-      localStorage.setItem("teacherToken", token); // [web:63]
-      localStorage.setItem("currentTeacher", JSON.stringify(data)); // [web:83]
+      localStorage.setItem("teacherToken", token);
+      localStorage.setItem("currentTeacher", JSON.stringify(data));
 
       alert("Login successful");
       navigate("/teacher/dashboard");
     } catch (error) {
       console.log(error);
-      alert(error?.response?.data?.message || "Login failed");
-    } finally {
-      setLoading(false);
+      alert("Login failed");
     }
   };
 
+  const forgetHandle = () => {
+    navigate("/forget");
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 flex items-center justify-center py-12 px-4">
-      <div className="max-w-4xl w-full flex flex-col md:flex-row items-stretch gap-8">
-        {/* Left panel: teacher-specific messaging */}
+    <div
+      className="
+        min-h-screen w-full
+        bg-cover bg-center bg-no-repeat
+        relative
+        flex items-center justify-center
+        py-12 px-4
+      "
+      style={{
+        // staff room / classroom style background
+        backgroundImage:
+          "url('https://images.pexels.com/photos/4090007/pexels-photo-4090007.jpeg')",
+      }}
+    >
+      {/* Dark overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-950/95 via-slate-900/92 to-indigo-900/85" />
+
+      {/* Soft board frame */}
+      <div className="pointer-events-none absolute inset-x-6 inset-y-10 border border-white/5 rounded-[34px] bg-slate-900/25" />
+
+      <div className="relative z-10 max-w-5xl w-full flex flex-col md:flex-row items-stretch gap-8">
+        {/* Left: Teacher messaging */}
         <div className="hidden md:flex flex-col justify-between bg-white/5 backdrop-blur-2xl border border-white/15 rounded-3xl p-8 text-slate-50 shadow-2xl w-full md:w-1/2">
           <div>
             <span className="inline-flex items-center px-3 py-1 mb-4 rounded-full text-[11px] font-semibold tracking-[0.25em] bg-white/10 border border-white/20 uppercase">
-              Teacher Panel
+              Teacher Panel • Staff only
             </span>
             <h2 className="text-2xl md:text-3xl font-semibold mb-3">
-              Welcome back, Teacher.
+              Staff Room se digital board tak.
             </h2>
             <p className="text-sm text-slate-200/85">
-              Apne school ke students ke liye banaye gaye courses, tests aur
-              notes ko yahin se manage karein.
+              Yahin se aap apne school ke students ke liye courses, tests,
+              notes aur announcements manage karte hain. Ye panel sirf verified
+              teachers ke liye hai.
             </p>
           </div>
+
           <ul className="mt-6 space-y-2 text-sm text-slate-100/90">
-            <li>• Naye courses add karein aur pricing set karein.</li>
-            <li>• Students ki progress aur test results dekhein.</li>
-            <li>• Doubts aur announcements ek hi dashboard se handle karein.</li>
+            <li>• Board ke syllabus ke hisaab se course banayein.</li>
+            <li>• Test results aur performance ek jagah se track karein.</li>
+            <li>• Homework, notes aur announcements online share karein.</li>
           </ul>
+
+          <p className="mt-6 text-[11px] text-slate-300 border-t border-white/10 pt-3">
+            Reminder: Apna login kisi student ke sath share na karein. Har
+            teacher ka account alag hota hai.
+          </p>
         </div>
 
-        {/* Right panel: actual login form (same glass style) */}
+        {/* Right: Login form */}
         <div className="w-full md:w-1/2 bg-white/10 backdrop-blur-2xl rounded-3xl p-8 border border-white/20 shadow-[0_18px_50px_rgba(0,0,0,0.7)]">
           {/* Header */}
           <div className="text-center mb-6">
-            <div className="mx-auto h-20 w-20 bg-gradient-to-r from-indigo-400 to-purple-500 rounded-3xl flex items-center justify-center mb-4 shadow-2xl">
+            <div className="mx-auto h-20 w-20 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-3xl flex items-center justify-center mb-4 shadow-2xl">
               <svg
                 className="w-10 h-10 text-white"
                 fill="none"
@@ -89,13 +114,13 @@ const TeacherLogin = () => {
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth={1.5}
+                  strokeWidth={1.4}
                   d="M16 12a4 4 0 10-8 0 4 4 0 008 0z"
                 />
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth={1.5}
+                  strokeWidth={1.4}
                   d="M4 19c1.5-2 3.5-3 8-3s6.5 1 8 3"
                 />
               </svg>
@@ -104,16 +129,13 @@ const TeacherLogin = () => {
               Teacher Login
             </h2>
             <p className="text-slate-300 text-sm">
-              Apne school teacher account se sign in karke dashboard open karein.
+              Apne school teacher account se sign in karke dashboard open
+              karein.
             </p>
           </div>
 
           {/* Form */}
-          <form
-            className="space-y-6"
-            onSubmit={formDataHandler}
-          >
-            {/* Email */}
+          <form className="space-y-6" onSubmit={formDataHandler}>
             <div>
               <label className="block text-sm font-semibold text-slate-200 mb-2">
                 School Email
@@ -129,7 +151,6 @@ const TeacherLogin = () => {
               />
             </div>
 
-            {/* Password */}
             <div>
               <label className="block text-sm font-semibold text-slate-200 mb-2">
                 Password
@@ -149,6 +170,7 @@ const TeacherLogin = () => {
               <span>For verified school teachers only</span>
               <button
                 type="button"
+                onClick={forgetHandle}
                 className="text-indigo-300 hover:text-white transition-colors"
               >
                 Forgot password?
@@ -158,10 +180,9 @@ const TeacherLogin = () => {
             <div className="pt-2">
               <button
                 type="submit"
-                disabled={loading}
-                className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold py-3.5 px-6 rounded-2xl hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 shadow-xl hover:shadow-2xl hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold py-3.5 px-6 rounded-2xl hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 shadow-xl hover:shadow-2xl hover:-translate-y-0.5"
               >
-                {loading ? "Logging in..." : "Login to Teacher Panel"}
+                Login to Teacher Panel
               </button>
             </div>
 

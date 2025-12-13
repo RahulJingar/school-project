@@ -8,6 +8,8 @@ import TeacherLogin from './controller/TeacherLogin';
 import TeacherSignup from './controller/TeacherSignup';
 import TeacherDashboard from './controller/TeacherDashboard';
 import TeacherReset from './controller/TeacherReset';
+import Forget from './controller/Forget';
+import EditTeacherCourse from './controller/EditTeacherCourse';
 
 const App = () => {
   return (
@@ -22,6 +24,8 @@ const App = () => {
           <Route path="/signup" element={<UserSignup/>}/>
           <Route path="/login" element={<UserLogin/>}/>
           <Route path="/teacher/dashboard" element={<TeacherDashboard/>}/>
+          <Route path="/forget" element={<Forget/>}/>
+          <Route path="/edit" element={<EditTeacherCourse/>}/>
         </Routes>
       </BrowserRouter>
     </div>
