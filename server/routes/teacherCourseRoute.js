@@ -5,7 +5,7 @@ const auth = require("../middleware/auth");
 
 // prefix: /teacherCourses
 router.post("/create", teacherCourse.createCourse);
-router.patch("/teacherCourseUpdate/:id", teacherCourse.teacherCourseUpdate);
+router.patch("/teacherCourseUpdate/:id",auth, teacherCourse.teacherCourseUpdate);
 router.get("/myCourses",auth, teacherCourse.getMyCourses);
 
 module.exports = router;

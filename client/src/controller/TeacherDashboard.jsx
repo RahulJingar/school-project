@@ -222,7 +222,7 @@ const TeacherDashboard = () => {
 
                   <div className="flex gap-2">
                     <button 
-                    onClick={()=>navigate("/edit")}
+                    onClick={()=>navigate(`/edit/${course._id}`)}
                     className="flex-1 bg-indigo-500/20 hover:bg-indigo-500/40 text-indigo-200 font-medium py-1.5 px-3 rounded-2xl border border-indigo-500/30 transition-all duration-200 text-xs">
                       Edit
                     </button>

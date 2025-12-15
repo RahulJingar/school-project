@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Forget = () => {
   const [forgetData, setForgetData] = useState({
     email: "",
     newPassword: "",
   });
+
+  const navigate=useNavigate();
 
   const forgetHandler = async (e) => {
     e.preventDefault();
@@ -103,6 +106,10 @@ const Forget = () => {
               Forget
             </button>
           </form>
+
+          <button
+          onClick={()=>navigate(-1)}
+          className="w-full mt-2 bg-red-400 hover:bg-red-800 text-white font-semibold py-3.5 rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-200">Back</button>
 
           <p className="text-xs text-slate-400 text-center mt-5">
             Ye reset sirf teacher accounts ke liye hai. Student password
