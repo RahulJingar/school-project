@@ -160,19 +160,7 @@ const Courses = () => {
             className="inline-flex items-center gap-3 px-8 py-4 bg-white text-indigo-600 font-bold text-lg rounded-2xl hover:bg-indigo-50 transition-all duration-200 shadow-2xl hover:shadow-3xl hover:-translate-y-1"
           >
             Explore All Courses
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 8l4 4m0 0l-4 4m4-4H3"
-              />
-            </svg>
+           
           </Link>
         </div>
       </div>

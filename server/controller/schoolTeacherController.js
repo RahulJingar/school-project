@@ -5,8 +5,9 @@ const jwt=require("jsonwebtoken");
 const secretKey="ashishrahulmanishjiteshkavishpalkesh"
 
 exports.teacherSignup=async(req,res)=>{
-  const {name,email,password}=req.body;
-  if(!(name&&email&&password)){
+  const {name,email,subject,password}=req.body;
+  console.log(`>>>subject>>>`,subject);
+  if(!(name&&email&&subject&&password)){
     return res.status(400).send({message: "all input field are required"});
   }
 
@@ -15,7 +16,7 @@ exports.teacherSignup=async(req,res)=>{
 
   
   const data = {
-    name,email,password:hash
+    name,email,subject,password:hash
   }
 
   const signupUser=await schoolTeacher.create(data);
@@ -112,3 +113,5 @@ exports.teacherForget=async(req,res)=>{
   }
 
 }
+
+

@@ -1,3 +1,4 @@
+// src/adminController/AllData.jsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -11,6 +12,7 @@ const AllData = () => {
   const [errorMsg, setErrorMsg] = useState("");
 
   const token = localStorage.getItem("adminToken");
+  const currentAdmin = JSON.parse(localStorage.getItem("currentAdmin") || "{}");
 
   useEffect(() => {
     if (!token) {
@@ -54,7 +56,7 @@ const AllData = () => {
       <div className="min-h-screen flex items-center justify-center bg-slate-950">
         <div className="text-center">
           <div className="h-10 w-10 border-4 border-emerald-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-slate-200 text-sm">Loading all data...</p>
+          <p className="text-slate-100 text-sm">Loading all data...</p>
         </div>
       </div>
     );
@@ -62,15 +64,15 @@ const AllData = () => {
 
   if (errorMsg) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-950">
-        <div className="bg-slate-900/80 border border-red-500/40 rounded-3xl px-8 py-6 text-center max-w-md">
+      <div className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-100">
+        <div className="bg-slate-900 border border-red-500/60 rounded-3xl px-8 py-6 text-center max-w-md shadow-2xl">
           <h2 className="text-xl font-semibold text-red-400 mb-2">
             Something went wrong
           </h2>
-          <p className="text-slate-300 text-sm mb-4">{errorMsg}</p>
+          <p className="text-sm mb-4">{errorMsg}</p>
           <button
             onClick={() => window.location.reload()}
-            className="px-5 py-2 rounded-2xl text-sm font-semibold bg-slate-800 text-slate-100 hover:bg-slate-700"
+            className="px-5 py-2 rounded-2xl text-sm font-semibold bg-slate-800 hover:bg-slate-700"
           >
             Retry
           </button>
@@ -80,194 +82,228 @@ const AllData = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-50 px-4 py-6">
-      <div className="max-w-6xl mx-auto space-y-8">
-        {/* Header */}
-        <header className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-semibold">
-              Admin Overview
-            </h1>
-            <p className="text-xs text-slate-400 mt-1">
-              All students, teachers and courses in one place.
-            </p>
+    <div className="min-h-screen bg-slate-950 text-slate-100">
+      {/* solid top bar */}
+      <div className="border-b border-slate-800 bg-slate-900/95 backdrop-blur sticky top-0 z-20">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center shadow-lg">
+              <span className="text-slate-950 text-lg font-bold">A</span>
+            </div>
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.22em] text-slate-400">
+                School Admin
+              </p>
+              <h1 className="text-xl md:text-2xl font-semibold text-white">
+                Dashboard
+              </h1>
+            </div>
           </div>
-          <button
-            onClick={() => {
-              localStorage.removeItem("adminToken");
-              localStorage.removeItem("currentAdmin");
-              navigate("/admin/login");
-            }}
-            className="px-4 py-2 rounded-2xl text-xs font-semibold bg-red-500/80 hover:bg-red-600 text-white"
-          >
-            Logout
-          </button>
-        </header>
 
+          <div className="flex items-center gap-4">
+            {currentAdmin?.name && (
+              <div className="hidden sm:block text-right">
+                <p className="text-sm font-semibold text-white">
+                  {currentAdmin.name}
+                </p>
+                <p className="text-[11px] text-slate-400">
+                  {currentAdmin.email}
+                </p>
+              </div>
+            )}
+            <button
+              onClick={() => {
+                localStorage.removeItem("adminToken");
+                localStorage.removeItem("currentAdmin");
+                navigate("/admin/login");
+              }}
+              className="px-4 py-2 rounded-2xl text-xs font-semibold bg-red-500 hover:bg-red-600 text-white shadow-md"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* main content */}
+      <div className="max-w-7xl mx-auto px-6 py-6 space-y-6">
         {/* Stats */}
         <section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-slate-900/80 border border-slate-700 rounded-2xl p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-md">
             <p className="text-xs text-slate-400 mb-1">Total Students</p>
             <p className="text-2xl font-bold text-emerald-300">
               {students.length}
             </p>
-          </div>
-          <div className="bg-slate-900/80 border border-slate-700 rounded-2xl p-4">
-            <p className="text-xs text-slate-400 mb-1">Total Teachers</p>
-            <p className="text-2xl font-bold text-indigo-300">
-              {teachers.length}
+            <p className="text-[11px] text-slate-400 mt-1">
+              Active registered students.
             </p>
           </div>
-          <div className="bg-slate-900/80 border border-slate-700 rounded-2xl p-4">
+
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-md">
+            <p className="text-xs text-slate-400 mb-1">Total Teachers</p>
+            <p className="text-2xl font-bold text-cyan-300">
+              {teachers.length}
+            </p>
+            <p className="text-[11px] text-slate-400 mt-1">
+              Verified teachers in system.
+            </p>
+          </div>
+
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-md">
             <p className="text-xs text-slate-400 mb-1">Total Courses</p>
             <p className="text-2xl font-bold text-amber-300">
               {courses.length}
             </p>
+            <p className="text-[11px] text-slate-400 mt-1">
+              Draft + published courses.
+            </p>
           </div>
         </section>
 
-        {/* Students table */}
-        <section className="bg-slate-900/80 border border-slate-700 rounded-2xl p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold">Students</h2>
-            <span className="text-[11px] text-slate-400">
-              Showing {students.length} records
-            </span>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-xs">
-              <thead className="bg-slate-800">
-                <tr>
-                  <th className="px-3 py-2 text-left font-semibold">Name</th>
-                  <th className="px-3 py-2 text-left font-semibold">Email</th>
-                  <th className="px-3 py-2 text-left font-semibold">Created</th>
-                </tr>
-              </thead>
-              <tbody>
-                {students.map((s) => (
-                  <tr
-                    key={s._id}
-                    className="border-b border-slate-800 hover:bg-slate-800/60"
-                  >
-                    <td className="px-3 py-2">{s.name}</td>
-                    <td className="px-3 py-2">{s.email}</td>
-                    <td className="px-3 py-2 text-slate-400">
-                      {s.createdAt
-                        ? new Date(s.createdAt).toLocaleDateString()
-                        : "-"}
-                    </td>
-                  </tr>
-                ))}
-                {students.length === 0 && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Students */}
+          <section className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-md">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-semibold text-white">Students</h2>
+              <span className="text-[11px] text-slate-400">
+                {students.length} records
+              </span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-[11px]">
+                <thead className="bg-slate-800">
                   <tr>
-                    <td
-                      colSpan={3}
-                      className="px-3 py-3 text-center text-slate-400"
-                    >
-                      No students found.
-                    </td>
+                    <th className="px-3 py-2 text-left font-semibold text-slate-100">
+                      Name
+                    </th>
+                    <th className="px-3 py-2 text-left font-semibold text-slate-100">
+                      Email
+                    </th>
+                    <th className="px-3 py-2 text-left font-semibold text-slate-100">
+                      Created
+                    </th>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        {/* Teachers table */}
-        <section className="bg-slate-900/80 border border-slate-700 rounded-2xl p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold">Teachers</h2>
-            <span className="text-[11px] text-slate-400">
-              Showing {teachers.length} records
-            </span>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-xs">
-              <thead className="bg-slate-800">
-                <tr>
-                  <th className="px-3 py-2 text-left font-semibold">Name</th>
-                  <th className="px-3 py-2 text-left font-semibold">Email</th>
-                  <th className="px-3 py-2 text-left font-semibold">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {teachers.map((t) => (
-                  <tr
-                    key={t._id}
-                    className="border-b border-slate-800 hover:bg-slate-800/60"
-                  >
-                    <td className="px-3 py-2">{t.name}</td>
-                    <td className="px-3 py-2">{t.email}</td>
-                    <td className="px-3 py-2">
-                      <span
-                        className={`px-2 py-1 rounded-full text-[10px] ${
-                          t.status === "approved"
-                            ? "bg-emerald-500/20 text-emerald-300"
-                            : "bg-amber-500/20 text-amber-300"
-                        }`}
+                </thead>
+                <tbody>
+                  {students.map((s) => (
+                    <tr
+                      key={s._id}
+                      className="border-b border-slate-800 hover:bg-slate-800/70"
+                    >
+                      <td className="px-3 py-2">{s.name}</td>
+                      <td className="px-3 py-2 text-slate-100">{s.email}</td>
+                      <td className="px-3 py-2 text-slate-400">
+                        {s.createdAt
+                          ? new Date(s.createdAt).toLocaleDateString()
+                          : "-"}
+                      </td>
+                    </tr>
+                  ))}
+                  {students.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan={3}
+                        className="px-3 py-3 text-center text-slate-400"
                       >
-                        {t.status || "pending"}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-                {teachers.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan={3}
-                      className="px-3 py-3 text-center text-slate-400"
-                    >
-                      No teachers found.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </section>
+                        No students found.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
 
-        {/* Courses table */}
-        <section className="bg-slate-900/80 border border-slate-700 rounded-2xl p-4">
+          {/* Teachers */}
+          <section className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-md">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-semibold text-white">Teachers</h2>
+              <span className="text-[11px] text-slate-400">
+                {teachers.length} records
+              </span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-[11px]">
+                <thead className="bg-slate-800">
+                  <tr>
+                    <th className="px-3 py-2 text-left font-semibold text-slate-100">
+                      Name
+                    </th>
+                    <th className="px-3 py-2 text-left font-semibold text-slate-100">
+                      Email
+                    </th>
+                    <th className="px-3 py-2 text-left font-semibold text-slate-100">
+                      Subject
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {teachers.map((t) => (
+                    <tr
+                      key={t._id}
+                      className="border-b border-slate-800 hover:bg-slate-800/70"
+                    >
+                      <td className="px-3 py-2">{t.name}</td>
+                      <td className="px-3 py-2 text-slate-100">{t.email}</td>
+                      <td className="px-3 py-2 text-slate-100">
+                        {t.subject || "-"}
+                      </td>
+                    </tr>
+                  ))}
+                  {teachers.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan={3}
+                        className="px-3 py-3 text-center text-slate-400"
+                      >
+                        No teachers found.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        {/* Courses */}
+        <section className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-md">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold">Courses</h2>
+            <h2 className="text-lg font-semibold text-white">Courses</h2>
             <span className="text-[11px] text-slate-400">
-              Showing {courses.length} records
+              {courses.length} records
             </span>
           </div>
           <div className="overflow-x-auto">
-            <table className="min-w-full text-xs">
+            <table className="min-w-full text-[11px]">
               <thead className="bg-slate-800">
                 <tr>
-                  <th className="px-3 py-2 text-left font-semibold">Title</th>
-                  <th className="px-3 py-2 text-left font-semibold">Teacher</th>
-                  <th className="px-3 py-2 text-left font-semibold">Price</th>
-                  <th className="px-3 py-2 text-left font-semibold">Status</th>
+                  <th className="px-3 py-2 text-left font-semibold text-slate-100">
+                    Title
+                  </th>
+                  <th className="px-3 py-2 text-left font-semibold text-slate-100">
+                    Teacher
+                  </th>
+                  <th className="px-3 py-2 text-left font-semibold text-slate-100">
+                    Price
+                  </th>
+                 
                 </tr>
               </thead>
               <tbody>
                 {courses.map((c) => (
                   <tr
                     key={c._id}
-                    className="border-b border-slate-800 hover:bg-slate-800/60"
+                    className="border-b border-slate-800 hover:bg-slate-800/70"
                   >
                     <td className="px-3 py-2">{c.title}</td>
-                    <td className="px-3 py-2">
+                    <td className="px-3 py-2 text-slate-100">
                       {c.teacher?.name || c.teacherName || "-"}
                     </td>
-                    <td className="px-3 py-2">
+                    <td className="px-3 py-2 text-slate-100">
                       ₹{c.price != null ? c.price : "-"}
                     </td>
-                    <td className="px-3 py-2">
-                      <span
-                        className={`px-2 py-1 rounded-full text-[10px] ${
-                          c.status === "published"
-                            ? "bg-emerald-500/20 text-emerald-300"
-                            : "bg-slate-500/30 text-slate-200"
-                        }`}
-                      >
-                        {c.status || "draft"}
-                      </span>
-                    </td>
+                   
                   </tr>
                 ))}
                 {courses.length === 0 && (

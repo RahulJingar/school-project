@@ -1,3 +1,4 @@
+// src/controller/TeacherSignup.jsx
 import React, { useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
@@ -6,6 +7,7 @@ const TeacherSignup = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    subject: "",
     password: "",
   });
 
@@ -22,7 +24,14 @@ const TeacherSignup = () => {
   const formDataHandler = async (e) => {
     e.preventDefault();
 
-    if (!(formData.name && formData.email && formData.password)) {
+    if (
+      !(
+        formData.name &&
+        formData.email &&
+        formData.subject &&
+        formData.password
+      )
+    ) {
       alert("Please fill all fields");
       return;
     }
@@ -33,20 +42,18 @@ const TeacherSignup = () => {
       const res = await axios.post(
         "http://127.0.0.1:2727/schoolTeacher/teacherSignup",
         formData
-      ); // [web:41][web:60]
+      );
 
       console.log(">>> teacher signup res >>>", res.data);
 
       const teacherData = res.data;
 
-      // list of teachers
+      // optional: localStorage me list + current teacher
       const existingTeachers =
-        JSON.parse(localStorage.getItem("teachers")) || []; // [web:52][web:83]
+        JSON.parse(localStorage.getItem("teachers")) || [];
       existingTeachers.push(teacherData);
-      localStorage.setItem("teachers", JSON.stringify(existingTeachers)); // [web:49][web:55]
-
-      // current teacher
-      localStorage.setItem("currentTeacher", JSON.stringify(teacherData)); // [web:83]
+      localStorage.setItem("teachers", JSON.stringify(existingTeachers));
+      localStorage.setItem("currentTeacher", JSON.stringify(teacherData));
 
       alert("Teacher signup successful");
       navigate("/teacher/login");
@@ -71,11 +78,10 @@ const TeacherSignup = () => {
           "url('https://images.pexels.com/photos/5212330/pexels-photo-5212330.jpeg')",
       }}
     >
-      {/* Dark overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900/95 via-slate-900/80 to-indigo-800/70" />
 
       <div className="relative z-10 w-full max-w-4xl mx-auto flex flex-col md:flex-row items-stretch gap-8">
-        {/* Left side - teacher highlight */}
+        {/* Left info side (optional, same as pehle) */}
         <div className="hidden md:flex flex-col justify-between bg-white/5 backdrop-blur-2xl border border-white/15 rounded-3xl p-7 text-slate-50 shadow-2xl w-full md:w-1/2">
           <div>
             <span className="inline-flex items-center px-3 py-1 mb-4 rounded-full text-[11px] font-semibold tracking-[0.25em] bg-white/10 border border-white/20 uppercase">
@@ -86,7 +92,7 @@ const TeacherSignup = () => {
             </h2>
             <p className="text-sm text-slate-200/85">
               Apne school ke students ke liye notes, recorded classes aur test
-              series ek hi jagah becho. No tech headache, sirf teaching. 
+              series ek hi jagah becho. No tech headache, sirf teaching.
             </p>
           </div>
           <ul className="mt-6 space-y-2 text-sm text-slate-100/90">
@@ -96,7 +102,7 @@ const TeacherSignup = () => {
           </ul>
         </div>
 
-        {/* Right side - actual form */}
+        {/* Right form side */}
         <div className="w-full md:w-1/2 bg-white/10 backdrop-blur-2xl border border-white/20 rounded-3xl p-8 shadow-[0_18px_50px_rgba(0,0,0,0.7)]">
           <div className="mb-6">
             <h1 className="text-2xl md:text-3xl font-semibold text-slate-50 mb-2">
@@ -118,6 +124,21 @@ const TeacherSignup = () => {
                 name="name"
                 placeholder="e.g. Priya Sharma"
                 value={formData.name}
+                onChange={formHandler}
+                className="w-full px-4 py-3 bg-white/10 border border-white/25 rounded-2xl text-sm text-slate-50 placeholder-slate-300/80 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-all duration-200"
+              />
+            </div>
+
+            {/* Subject */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-200 mb-2">
+                Subject
+              </label>
+              <input
+                type="text"
+                name="subject"
+                placeholder="e.g. Mathematics, Science"
+                value={formData.subject}
                 onChange={formHandler}
                 className="w-full px-4 py-3 bg-white/10 border border-white/25 rounded-2xl text-sm text-slate-50 placeholder-slate-300/80 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-all duration-200"
               />
