@@ -5,8 +5,8 @@ const schoolCourse = require("../model/teacherCourse");
 exports.getAllPublishedCourses = async (req, res) => {
   try {
     const courses = await schoolCourse
-      .find({ status: "published" }) // sirf published
-      .sort({ createdAt: -1 });      // latest pehle
+      .find() 
+      .sort({ createdAt: -1 });      
 
     return res.status(200).json({
       message: "Published courses fetched",

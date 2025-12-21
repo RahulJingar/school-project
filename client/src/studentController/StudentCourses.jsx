@@ -14,7 +14,7 @@ const StudentCourses = () => {
         setLoading(true);
         setErrorMsg("");
 
-        const res = await axios.get("http://127.0.0.1:2727/courses");
+        const res = await axios.get("http://127.0.0.1:2727/getAllPublishedCourses");
         setCourses(res.data.data || res.data || []);
       } catch (err) {
         console.error(">>> public courses error >>>", err);

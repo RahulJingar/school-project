@@ -112,3 +112,37 @@ exports.teacherCourseUpdate = async (req, res) => {
       .json({ message: "Server error", error: err.message });
   }
 };
+
+
+  // server/controller/teacherCourseController.js
+exports.updateStatus = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { status } = req.body; // "published" or "draft"
+    const teacherId = req.teacherId; // middleware se
+
+    if (!["draft", "published", "archived"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status" });
+    }
+
+    const course = await schoolCourse.findOneAndUpdate(
+      { _id: id, teacher: teacherId },
+      { status },
+      { new: true }
+    );
+
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+
+    return res.status(200).json({
+      message: "Course status updated",
+      data: course,
+    });
+  } catch (err) {
+    console.error(">>> updateStatus error >>>", err);
+    return res
+      .status(500)
+      .json({ message: "Server error", error: err.message });
+  }
+};
