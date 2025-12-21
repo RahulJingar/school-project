@@ -1,11 +1,31 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 const Ui = () => {
+  const [adminExists, setAdminExists] = useState(false);
+  const [loadingAdmin, setLoadingAdmin] = useState(true);
+
+  // OPTIONAL: check from backend if any admin already exists
+  useEffect(() => {
+    const checkAdmin = async () => {
+      try {
+        // simple GET: backend me /admin/adminExists jaisa ek route bana sakta hai
+        const res = await axios.get("http://127.0.0.1:2727/admin/adminExists");
+        setAdminExists(res.data.exists); // { exists: true/false }
+      } catch (err) {
+        console.error(">>> adminExists error >>>", err);
+      } finally {
+        setLoadingAdmin(false);
+      }
+    };
+    checkAdmin();
+  }, []);
+
   return (
     <div
       className="
-        h-screen w-full
+        min-h-screen w-full
         bg-cover bg-center bg-no-repeat
         relative
         flex items-center justify-center
@@ -27,25 +47,86 @@ const Ui = () => {
           </span>
 
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold leading-tight mb-3">
-            Buy and manage school courses
+            One platform for admin,
             <span className="block text-indigo-300">
-              students & teachers ke liye ek hi jagah.
+              teachers & students of your school.
             </span>
           </h1>
 
           <p className="text-sm md:text-[15px] text-slate-200/85 mb-6">
-            Students apne school ke teachers se directly courses buy kar sakte
-            hain. Teachers apna syllabus-based paid content, notes aur test
-            series is panel se manage kar sakte hain.
+            Admin pura system control kare, teachers apne courses manage karein
+            aur students trusted content se padhai karein – sab kuch ek hi
+            jagah se.
           </p>
 
           <p className="text-[11px] text-slate-300/80">
-            Same school ecosystem • Secure access • Teacher-controlled pricing
+            Single admin • Teacher approval system • Open student signup
           </p>
         </div>
 
-        {/* RIGHT: role selector cards */}
+        {/* RIGHT: 3 role cards */}
         <div className="lg:w-1/2 grid grid-cols-1 md:grid-cols-2 gap-5">
+          {/* Admin block */}
+          <div className="bg-white/14 backdrop-blur-2xl border border-white/25 rounded-2xl p-5 shadow-[0_18px_50px_rgba(0,0,0,0.65)] flex flex-col justify-between">
+            <div>
+              <div className="inline-flex items-center gap-2 mb-2">
+                <div className="h-9 w-9 rounded-2xl bg-red-500/85 flex items-center justify-center shadow-lg">
+                  <span className="text-sm font-bold">A</span>
+                </div>
+                <h3 className="text-lg font-semibold">Admin Panel</h3>
+              </div>
+              <p className="text-xs text-slate-200/90 mb-4">
+                Sirf ek hi admin account allowed. Admin teachers ko approve
+                karega, courses monitor karega aur students ka overall data
+                dekh sakega.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-2 mt-2">
+              <Link
+                to="/admin/login"
+                className="
+                  inline-flex items-center justify-center
+                  px-4 py-2.5 text-sm font-semibold
+                  rounded-full
+                  bg-red-500 hover:bg-red-600
+                  shadow-lg shadow-red-500/40
+                  transition-transform hover:-translate-y-0.5
+                "
+              >
+                Admin Login
+              </Link>
+
+              {/* Admin signup – sirf tab enable jab adminExists false ho */}
+              <button
+                disabled={adminExists || loadingAdmin}
+                onClick={() => {
+                  if (!adminExists) {
+                    window.location.href = "/admin/signup";
+                  }
+                }}
+                className={`
+                  inline-flex items-center justify-center
+                  px-4 py-2.5 text-xs font-semibold
+                  rounded-full
+                  border border-slate-100/60
+                  transition-transform
+                  ${
+                    adminExists || loadingAdmin
+                      ? "bg-slate-600/60 text-slate-300 cursor-not-allowed"
+                      : "bg-white/5 hover:bg-slate-900/40 hover:-translate-y-0.5"
+                  }
+                `}
+              >
+                {loadingAdmin
+                  ? "Checking admin..."
+                  : adminExists
+                  ? "Admin already created"
+                  : "Create Admin Account"}
+              </button>
+            </div>
+          </div>
+
           {/* Teacher block */}
           <div className="bg-white/12 backdrop-blur-2xl border border-white/20 rounded-2xl p-5 shadow-[0_18px_50px_rgba(0,0,0,0.6)] flex flex-col justify-between">
             <div>
@@ -53,12 +134,12 @@ const Ui = () => {
                 <div className="h-9 w-9 rounded-2xl bg-indigo-500/80 flex items-center justify-center shadow-lg">
                   <span className="text-sm font-bold">T</span>
                 </div>
-                <h3 className="text-lg font-semibold">For Teachers</h3>
+                <h3 className="text-lg font-semibold">Teacher Space</h3>
               </div>
               <p className="text-xs text-slate-200/90 mb-4">
-                Apne school ke students ke liye online courses, notes, tests
-                aur recordings manage karein. Dashboard se sab control aapke
-                paas rahega.
+                Teacher signup karega, lekin account pehle <span className="font-semibold">Admin approval</span>{" "}
+                se active hoga. Active hone ke baad hi courses create / manage
+                kar paayega.
               </p>
             </div>
 
@@ -87,31 +168,24 @@ const Ui = () => {
                   transition-transform hover:-translate-y-0.5
                 "
               >
-                Create Teacher Account
+                Teacher Signup (Pending Approval)
               </Link>
-              <div className="flex justify-between text-[11px] text-slate-300 mt-1">
-                <Link to="/teacher/reset" className="hover:text-white">
-                  Reset password
-                </Link>
-                <Link to="/forget" className="hover:text-white">
-                  Forgot password?
-                </Link>
-              </div>
             </div>
           </div>
 
           {/* Student block */}
-          <div className="bg-white/10 backdrop-blur-2xl border border-white/15 rounded-2xl p-5 shadow-[0_18px_50px_rgba(0,0,0,0.55)] flex flex-col justify-between">
+          <div className="md:col-span-2 bg-white/10 backdrop-blur-2xl border border-white/15 rounded-2xl p-5 shadow-[0_18px_50px_rgba(0,0,0,0.55)] flex flex-col justify-between">
             <div>
               <div className="inline-flex items-center gap-2 mb-2">
                 <div className="h-9 w-9 rounded-2xl bg-emerald-500/80 flex items-center justify-center shadow-lg">
                   <span className="text-sm font-bold">S</span>
                 </div>
-                <h3 className="text-lg font-semibold">For Students</h3>
+                <h3 className="text-lg font-semibold">Student Corner</h3>
               </div>
               <p className="text-xs text-slate-200/90 mb-4">
-                Apne hi school ke trusted teachers se courses buy karo, notes
-                download karo aur tests attempt karke apni prep strong banao.
+                Koi bhi student easily signup kar sakta hai, courses browse
+                kar sakta hai aur apne school ke teachers ke courses buy karke
+                padhai kar sakta hai.
               </p>
             </div>
 
@@ -144,7 +218,7 @@ const Ui = () => {
                   Student Login
                 </Link>
                 <Link
-                  to="/signup"
+                  to="/student/signup"
                   className="
                     flex-1 inline-flex items-center justify-center
                     px-3 py-2 text-xs font-semibold
@@ -158,7 +232,7 @@ const Ui = () => {
                 </Link>
               </div>
               <p className="text-[11px] text-slate-300 mt-1">
-                Access only for students of your school.
+                Student signup hamesha open hai – koi approval required nahi.
               </p>
             </div>
           </div>

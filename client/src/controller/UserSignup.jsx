@@ -1,88 +1,172 @@
-import React from 'react'
-import { useState } from 'react'
+// src/controller/UserSignup.jsx
+import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from "react-router-dom";
 
 const UserSignup = () => {
-
   const [userSignup, setUserSignup] = useState({
     name: "",
     email: "",
-    password: ""
+    password: "",
   });
-  const navigate=useNavigate();
+
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const navigate = useNavigate();
+
+  const signupHandler = (e) => {
+    const { name, value } = e.target;
+    setUserSignup((prev) => ({ ...prev, [name]: value }));
+    setErrorMsg("");
+  };
 
   const signupUser = async (e) => {
     e.preventDefault();
-    const res = await axios.post(`http://127.0.0.1:2727/schoolUser/signup`, userSignup);
-    console.log(`>>>res>>`, res.data);
-    if(userSignup.name&&userSignup.email&&userSignup.password){
-      alert("user signup successfully");
-      navigate("/")
+
+    if (!userSignup.name || !userSignup.email || !userSignup.password) {
+      setErrorMsg("Name, email aur password sab required hain");
+      return;
     }
-  }
 
+    try {
+      setLoading(true);
+      setErrorMsg("");
 
-  const signupHandler = (e) => {
-    setUserSignup({
-      ...userSignup,
-      [e.target.name]: e.target.value
-    })
-  }
+      const res = await axios.post(
+        "http://127.0.0.1:2727/schoolUser/signup",
+        userSignup
+      );
+
+      console.log(">>>res>>", res.data);
+
+      // backend: 202 + created user object
+      localStorage.setItem(
+        "currentStudentDraft",
+        JSON.stringify(res.data || userSignup)
+      );
+
+      alert("Student signup successfully");
+      navigate("/login");
+    } catch (err) {
+      console.error(err);
+      const msg =
+        err?.response?.data?.message ||
+        "Signup failed, please try again";
+      setErrorMsg(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
-      <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md">
-        
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
-          Create an Account
-        </h2>
+    <div
+      className="min-h-screen w-full bg-cover bg-center bg-no-repeat flex items-center justify-center px-4"
+      style={{
+        backgroundImage:
+          "url('https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg')",
+      }}
+    >
+      <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm" />
 
-        <form onSubmit={signupUser} className="space-y-4">
+      <div className="relative z-10 w-full max-w-md">
+        <div className="mb-6 text-center">
+          <p className="text-xs uppercase tracking-[0.25em] text-emerald-400">
+            School Student Portal
+          </p>
+          <h1 className="mt-2 text-3xl font-bold text-white">
+            Student Sign Up
+          </h1>
+          <p className="mt-1 text-xs text-slate-300">
+            Naya school account banayein aur apne online classroom se juden.
+          </p>
+        </div>
 
-          {/* Name */}
-          <input
-            type="text"
-            name="name"
-            placeholder="Enter your name"
-            value={userSignup.name}
-            onChange={signupHandler}
-            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+        <div className="bg-slate-900/80 border border-white/10 rounded-3xl shadow-2xl p-6">
+          <div className="flex justify-center mb-4">
+            <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-lime-500 flex items-center justify-center shadow-xl">
+              <span className="text-white text-2xl font-bold">S</span>
+            </div>
+          </div>
 
-          {/* Email */}
-          <input
-            type="email"
-            name="email"
-            placeholder="Enter your email"
-            value={userSignup.email}
-            onChange={signupHandler}
-            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          {errorMsg && (
+            <div className="mb-3 text-xs text-red-300 bg-red-500/10 border border-red-500/40 rounded-xl px-3 py-2">
+              {errorMsg}
+            </div>
+          )}
 
-          {/* Password */}
-          <input
-            type="password"
-            name="password"
-            placeholder="Enter your password"
-            value={userSignup.password}
-            onChange={signupHandler}
-            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          <form className="space-y-4" onSubmit={signupUser}>
+            <div>
+              <label className="block text-xs font-medium text-slate-200 mb-1">
+                Full Name
+              </label>
+              <input
+                type="text"
+                name="name"
+                placeholder="Enter your full name"
+                value={userSignup.name}
+                onChange={signupHandler}
+                className="w-full px-3 py-2.5 rounded-2xl bg-slate-800/80 border border-slate-600 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              />
+            </div>
 
-          {/* Button */}
-          <button
-            className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all"
-          >
-            Sign Up
-          </button>
+            <div>
+              <label className="block text-xs font-medium text-slate-200 mb-1">
+                School Email
+              </label>
+              <input
+                type="email"
+                name="email"
+                placeholder="student.name@school.com"
+                value={userSignup.email}
+                onChange={signupHandler}
+                className="w-full px-3 py-2.5 rounded-2xl bg-slate-800/80 border border-slate-600 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              />
+            </div>
 
-        </form>
+            <div>
+              <label className="block text-xs font-medium text-slate-200 mb-1">
+                Password
+              </label>
+              <input
+                type="password"
+                name="password"
+                placeholder="Create a strong password"
+                value={userSignup.password}
+                onChange={signupHandler}
+                className="w-full px-3 py-2.5 rounded-2xl bg-slate-800/80 border border-slate-600 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              />
+            </div>
 
-        <p className="text-center mt-4 text-gray-600">
-          Already have an account? <span className="text-blue-600 cursor-pointer">Login</span>
+            <div className="text-[11px] text-slate-400">
+              Password kam se kam 6 characters ka ho, numbers aur letters ka
+              use karein.
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full mt-1 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-lime-500 text-white text-sm font-semibold shadow-lg hover:from-emerald-600 hover:to-lime-600 transition-all duration-150 disabled:opacity-60"
+            >
+              {loading ? "Creating account..." : "Create Student Account"}
+            </button>
+          </form>
+
+          <p className="mt-4 text-[11px] text-center text-slate-400">
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              className="text-emerald-400 hover:text-emerald-300 font-medium"
+            >
+              Login here
+            </Link>
+          </p>
+        </div>
+
+        <p className="mt-4 text-[10px] text-center text-slate-500">
+          Signup karke aap school ke terms, privacy policy aur online class
+          rules se sehmat hote hain.
         </p>
-
       </div>
     </div>
   );

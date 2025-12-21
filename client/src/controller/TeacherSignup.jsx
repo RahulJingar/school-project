@@ -30,7 +30,6 @@ const TeacherSignup = () => {
     try {
       setLoading(true);
 
-      // backend teacherSignup endpoint
       const res = await axios.post(
         "http://127.0.0.1:2727/schoolTeacher/teacherSignup",
         formData

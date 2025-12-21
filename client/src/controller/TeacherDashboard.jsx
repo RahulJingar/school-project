@@ -32,7 +32,7 @@ const TeacherDashboard = () => {
             Authorization: `Bearer ${token}`,
           },
         }
-      ); // [web:114][web:13]
+      );
       setCourses(res.data.data || []);
     } catch (err) {
       console.error(">>> fetchCourses error >>>", err);
@@ -221,12 +221,20 @@ const TeacherDashboard = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <button 
-                    onClick={()=>navigate(`/edit/${course._id}`)}
-                    className="flex-1 bg-indigo-500/20 hover:bg-indigo-500/40 text-indigo-200 font-medium py-1.5 px-3 rounded-2xl border border-indigo-500/30 transition-all duration-200 text-xs">
+                    <button
+                      onClick={() => navigate(`/edit/${course._id}`)}
+                      className="flex-1 bg-indigo-500/20 hover:bg-indigo-500/40 text-indigo-200 font-medium py-1.5 px-3 rounded-2xl border border-indigo-500/30 transition-all duration-200 text-xs"
+                    >
                       Edit
                     </button>
-                    <button className="flex-1 bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-200 font-medium py-1.5 px-3 rounded-2xl border border-emerald-500/30 transition-all duration-200 text-xs">
+                    <button
+                      onClick={() =>
+                        navigate(`/courses/${course._id}`, {
+                          state: { course },
+                        })
+                      }
+                      className="flex-1 bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-200 font-medium py-1.5 px-3 rounded-2xl border border-emerald-500/30 transition-all duration-200 text-xs"
+                    >
                       View
                     </button>
                   </div>
@@ -238,10 +246,7 @@ const TeacherDashboard = () => {
       </div>
 
       {showCreate && (
-        <CreateCourseModal
-          onClose={() => setShowCreate(false)}
-          onCreated={fetchCourses}
-        />
+        <CreateCourseModal onClose={() => setShowCreate(false)} onCreated={fetchCourses} />
       )}
     </div>
   );

@@ -1,3 +1,4 @@
+// src/controller/CreateCourseModal.jsx
 import React, { useState } from "react";
 import axios from "axios";
 
@@ -26,6 +27,7 @@ const CreateCourseModal = ({ onClose, onCreated }) => {
 
   const submitHandler = async (e) => {
     e.preventDefault();
+
     if (!teacherId) {
       alert("Teacher not found, please login again");
       return;
@@ -59,8 +61,10 @@ const CreateCourseModal = ({ onClose, onCreated }) => {
         tags: formData.tags
           ? formData.tags.split(",").map((t) => t.trim())
           : [],
-        teacherId, // backend me teacher: teacherId
+        teacher: teacherId, // schema ke field naam se match
       };
+
+      console.log("payload >>>", payload);
 
       const res = await axios.post(
         "http://127.0.0.1:2727/teacherCourses/create",
@@ -70,14 +74,14 @@ const CreateCourseModal = ({ onClose, onCreated }) => {
             Authorization: `Bearer ${token}`,
           },
         }
-      ); // [web:111][web:7]
+      );
 
       console.log("create course res >>>", res.data);
       alert("Course created successfully");
       onClose();
-      if (onCreated) onCreated(); // dashboard list refresh
+      if (onCreated) onCreated();
     } catch (err) {
-      console.error(err);
+      console.error("create course error >>>", err);
       alert(
         err?.response?.data?.message || "Failed to create course"
       );
