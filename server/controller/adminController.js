@@ -1,97 +1,131 @@
-const admin=require("../model/adminModel");
-const bcrypt=require("bcrypt");
-const jwt=require("jsonwebtoken");
-const sk="ashishrahulmanish"
-const Admin = require("../model/adminModel");
-const schoolUser = require("../model/schoolUserController");   // student model
-const schoolTeacher = require("../model/schoolTeacherController"); // teacher model
-const schoolCourse = require("../model/teacherCourse");        // course model
+const admin = require("../model/adminModel");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const { sendWelcomeEmail, sendLoginNotification } = require("./emailService"); 
+const schoolUser = require("../model/schoolUserController");
+const schoolTeacher = require("../model/schoolTeacherController");
+const schoolCourse = require("../model/teacherCourse");
 
+const sk = "ashishrahulmanish";
 
+exports.adminSignup = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+    console.log(`>>> Signup data >>>`, { name, email });
 
-exports.adminSignup=async(req,res)=>{
-  const {name,email,password}=req.body;
-  console.log(`>>>name>>>`,name);
-  console.log(`>>>name>>>`,email);
-  console.log(`>>>name>>>`,password);
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(password, salt);
+    console.log(`>>>> Hash generated >>>`);
 
-  const data={
-    name,
-    email,
-    password
+    const existingAdmin = await admin.findOne({ email });
+    if (existingAdmin) {
+      return res.status(400).json({ message: "Admin already exists" });
+    }
+
+    const signupUser = await admin.create({
+      name,
+      email,
+      password: hash
+    });
+    console.log(`>>> Admin created >>>`, signupUser._id);
+
+    const token = jwt.sign({ email, id: signupUser._id }, sk);
+    console.log(`>>> token >>>`);
+
+    sendWelcomeEmail(email, name);
+
+    return res.status(201).json({
+      message: "Admin created successfully",
+      signupUser: {
+        id: signupUser._id,
+        name: signupUser.name,
+        email: signupUser.email
+      },
+      token
+    });
+
+  } catch (error) {
+    console.error(">>>>error>>>", error);
   }
-
-  const salt=bcrypt.genSaltSync(10);
-  const hash=bcrypt.hashSync(password,salt);
-
-  console.log(`>>>>hash>>>`,hash);
-
-  const signupUser=await admin.create({
-    name,
-    email,
-    password:hash
-  })
-
-  const token=await jwt.sign({email},sk);
-  console.log(`>>>token>>>`,token);
-
-  if(signupUser){
-    return res.status(202).send({signupUser,token});
-  }
-
-}
-
+};
 
 exports.adminLogin = async (req, res) => {
+  try {
     const { email, password } = req.body;
+    console.log(">>> Login attempt >>>", email);
 
+    // 1. Find admin
     const adminUser = await admin.findOne({ email });
-    console.log(">>> db admin >>>", adminUser);
+    console.log(">>> DB admin >>>", adminUser ? adminUser.email : "not found");
 
     if (!adminUser) {
       return res.status(400).json({ message: "Admin not found" });
     }
 
     const isMatch = await bcrypt.compare(password, adminUser.password);
-    console.log(">>> password match >>>", isMatch);
+    console.log(">>> Password match >>>", isMatch);
 
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
+    const token = jwt.sign({ email, id: adminUser._id }, sk);
+
+    sendLoginNotification(email, adminUser.name);
+
     return res.status(200).json({
       message: "Admin login success",
-      adminUser,
+      adminUser: {
+        id: adminUser._id,
+        name: adminUser.name,
+        email: adminUser.email
+      },
+      token
     });
-  } 
 
+  } catch (error) {
+    console.error(">>>>>error>>>", error);
+  }
+};
 
-
-// 1) sab students list
 exports.getAllStudents = async (req, res) => {
-    const students = await schoolUser.find().select("-password");
+  try {
+    const students = await schoolUser.find().select("-password -__v");
     return res.status(200).json({
-      message: "All students fetched",
+      message: "All students fetched successfully",
+      count: students.length,
       data: students,
     });
-  } 
+  } catch (error) {
+    console.error(">>>>>error >>>", error);
+  }
+};
 
 exports.getAllTeachers = async (req, res) => {
-    const teachers = await schoolTeacher.find().select("-password");
+  try {
+    const teachers = await schoolTeacher.find().select("-password -__v");
     return res.status(200).json({
-      message: "All teachers fetched",
+      message: "All teachers fetched successfully",
+      count: teachers.length,
       data: teachers,
     });
-  } 
+  } catch (error) {
+    console.error(">>>?>>>>>>>erro>>>", error);
+  }
+};
 
 exports.getAllCourses = async (req, res) => {
+  try {
     const courses = await schoolCourse
       .find()
-      .populate("teacher", "name email"); 
+      .populate("teacher", "name email")
 
     return res.status(200).json({
-      message: "All courses fetched",
+      message: "All courses fetched successfully",
+      count: courses.length,
       data: courses,
     });
+  } catch (error) {
+    console.error(">>>>>error>>>>", error);
   }
-
+};
