@@ -8,58 +8,43 @@ const UserLogin = () => {
     email: "",
     password: "",
   });
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
   const navigate = useNavigate();
 
   const loginHandle = (e) => {
-    const { name, value } = e.target;
-    setLoginData((prev) => ({ ...prev, [name]: value }));
-    setErrorMsg("");
+    setLoginData({
+      ...logindata,
+      [e.target.name]: e.target.value
+    })
   };
 
   const loginHandler = async (e) => {
     e.preventDefault();
 
-    if (!logindata.email || !logindata.password) {
-      setErrorMsg("Email aur password required hai");
+    if (!(logindata.email && logindata.password)) {
+      alert("Email aur password required hai");
       return;
     }
 
-    try {
-      setLoading(true);
-      setErrorMsg("");
+    const res = await axios.post(
+      "http://127.0.0.1:2727/schoolUser/login",
+      logindata
+    );
 
-      const res = await axios.post(
-        "http://127.0.0.1:2727/schoolUser/login",
-        logindata
-      );
+    console.log(">>>Res>>", res.data);
 
-      console.log(">>>Res>>", res.data);
+    const token = res.data.token;
+    const user = res.data.data;
 
-      // Backend: { message, data: existUser, token }
-      const token = res.data?.token;
-      const user = res.data?.data;
+    setLoginData({
+      email: "",
+      password: ""
+    });
 
-      if (!token || !user) {
-        setErrorMsg("Server response me token / user nahi mila.");
-        return;
-      }
+    localStorage.setItem("studentToken", token);
+    localStorage.setItem("currentStudent", JSON.stringify(user));
 
-      localStorage.setItem("studentToken", token);
-      localStorage.setItem("currentStudent", JSON.stringify(user));
-
-      alert("Student login successfully");
-      navigate("/courses"); // ya /dashboard agar bana ho
-    } catch (err) {
-      console.error(err);
-      const msg =
-        err?.response?.data?.message ||
-        "Invalid credentials, please try again";
-      setErrorMsg(msg);
-    } finally {
-      setLoading(false);
-    }
+    alert("Student login successfully");
+    navigate("/courses"); 
   };
 
   return (
@@ -92,12 +77,6 @@ const UserLogin = () => {
             </div>
           </div>
 
-          {errorMsg && (
-            <div className="mb-3 text-xs text-red-300 bg-red-500/10 border border-red-500/40 rounded-xl px-3 py-2">
-              {errorMsg}
-            </div>
-          )}
-
           <form className="space-y-4" onSubmit={loginHandler}>
             <div>
               <label className="block text-xs font-medium text-slate-200 mb-1">
@@ -128,14 +107,6 @@ const UserLogin = () => {
             </div>
 
             <div className="flex items-center justify-between text-[11px] text-slate-400">
-              <div className="flex items-center gap-2">
-                <input
-                  id="remember"
-                  type="checkbox"
-                  className="h-3.5 w-3.5 rounded border-slate-600 bg-slate-800 text-sky-500 focus:ring-sky-500"
-                />
-                <label htmlFor="remember">Keep me signed in</label>
-              </div>
               <button
                 type="button"
                 className="text-sky-400 hover:text-sky-300"
@@ -147,10 +118,9 @@ const UserLogin = () => {
 
             <button
               type="submit"
-              disabled={loading}
-              className="w-full mt-1 py-2.5 rounded-2xl bg-gradient-to-r from-sky-500 to-indigo-500 text-white text-sm font-semibold shadow-lg hover:from-sky-600 hover:to-indigo-600 transition-all duration-150 disabled:opacity-60"
+              className="w-full mt-1 py-2.5 rounded-2xl bg-gradient-to-r from-sky-500 to-indigo-500 text-white text-sm font-semibold shadow-lg hover:from-sky-600 hover:to-indigo-600 transition-all duration-150"
             >
-              {loading ? "Logging in..." : "Login to Classroom"}
+              Login to Classroom
             </button>
           </form>
 

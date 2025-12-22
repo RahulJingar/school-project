@@ -14,15 +14,15 @@ import AdminSignup from "./adminController/AdminSignup";
 import AdminLogin from "./adminController/AdminLogin";
 import AllData from "./adminController/AllData";
 
-// student side
 import StudentCourses from "./studentController/StudentCourses";
 import StudentCourseDetail from "./studentController/StudentCourseDetail";
+import StudentPayment from "./studentController/StudentPayment";
+import PaymentSuccess from "./studentController/PaymentSuccess";
 
 const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* landing */}
         <Route path="/" element={<Ui />} />
 
         <Route path="/teacher/login" element={<TeacherLogin />} />
@@ -31,19 +31,18 @@ const App = () => {
         <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
         <Route path="/edit/:id" element={<EditTeacherCourse />} />
 
-        {/* student auth */}
         <Route path="/student/signup" element={<UserSignup />} />
         <Route path="/login" element={<UserLogin />} />
         <Route path="/forget" element={<Forget />} />
 
-        {/* admin auth + dashboard */}
         <Route path="/admin/signup" element={<AdminSignup />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={<AllData />} />
 
-        {/* public student courses */}
-        <Route path="/courses" element={<StudentCourses />} />
+        <Route path="/dashboard" element={<StudentCourses />} />
         <Route path="/courses/:id" element={<StudentCourseDetail />} />
+        <Route path="/payment" element={<StudentPayment />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,4 +1,3 @@
-// src/controller/UserSignup.jsx
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
@@ -10,28 +9,25 @@ const UserSignup = () => {
     password: "",
   });
 
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
+
 
   const navigate = useNavigate();
 
   const signupHandler = (e) => {
-    const { name, value } = e.target;
-    setUserSignup((prev) => ({ ...prev, [name]: value }));
-    setErrorMsg("");
+   setUserSignup({
+    ...signupUser,
+    [e.target.name]: e.target.value
+   })
   };
 
   const signupUser = async (e) => {
     e.preventDefault();
 
-    if (!userSignup.name || !userSignup.email || !userSignup.password) {
+    if (!(userSignup.name && userSignup.email && userSignup.password)) {
       setErrorMsg("Name, email aur password sab required hain");
       return;
     }
 
-    try {
-      setLoading(true);
-      setErrorMsg("");
 
       const res = await axios.post(
         "http://127.0.0.1:2727/schoolUser/signup",
@@ -48,15 +44,6 @@ const UserSignup = () => {
 
       alert("Student signup successfully");
       navigate("/login");
-    } catch (err) {
-      console.error(err);
-      const msg =
-        err?.response?.data?.message ||
-        "Signup failed, please try again";
-      setErrorMsg(msg);
-    } finally {
-      setLoading(false);
-    }
   };
 
   return (
@@ -89,11 +76,7 @@ const UserSignup = () => {
             </div>
           </div>
 
-          {errorMsg && (
-            <div className="mb-3 text-xs text-red-300 bg-red-500/10 border border-red-500/40 rounded-xl px-3 py-2">
-              {errorMsg}
-            </div>
-          )}
+          
 
           <form className="space-y-4" onSubmit={signupUser}>
             <div>
@@ -145,10 +128,9 @@ const UserSignup = () => {
 
             <button
               type="submit"
-              disabled={loading}
               className="w-full mt-1 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-lime-500 text-white text-sm font-semibold shadow-lg hover:from-emerald-600 hover:to-lime-600 transition-all duration-150 disabled:opacity-60"
             >
-              {loading ? "Creating account..." : "Create Student Account"}
+              Creating account...
             </button>
           </form>
 

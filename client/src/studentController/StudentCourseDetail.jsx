@@ -12,12 +12,16 @@ const StudentCourseDetail = () => {
   const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
+    if (!id) return;
+
     const fetchDetail = async () => {
       try {
         setLoading(true);
         setErrorMsg("");
 
-        const res = await axios.get(`http://127.0.0.1:2727/getCourseByIdPublic/${id}`);
+        const res = await axios.get(
+          `http://127.0.0.1:2727/getCourseByIdPublic/${id}`
+        );
         setCourse(res.data.data || res.data);
       } catch (err) {
         console.error(">>> public course detail error >>>", err);
@@ -29,8 +33,18 @@ const StudentCourseDetail = () => {
       }
     };
 
-    if (id) fetchDetail();
+    fetchDetail();
   }, [id]);
+
+  const handleBuyCourse = () => {
+    if (!course) return;
+
+    // course ko localStorage me save
+    localStorage.setItem("selectedCourseForPayment", JSON.stringify(course));
+
+    // payment page pe bhej do
+    navigate("/payment");
+  };
 
   if (loading) {
     return (
@@ -67,7 +81,7 @@ const StudentCourseDetail = () => {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50 px-4 py-8">
       <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Left image */}
+        {/* Left: card */}
         <div className="md:col-span-1">
           <div className="bg-slate-900/80 border border-slate-700 rounded-2xl overflow-hidden">
             <img
@@ -87,19 +101,16 @@ const StudentCourseDetail = () => {
                 {course.totalDurationInMinutes} min total
               </p>
               <button
-                onClick={() => {
-                  // yaha baad me enroll / payment ka flow add karoge
-                  alert("Enroll flow baad me add karenge 🙂");
-                }}
+                onClick={handleBuyCourse}
                 className="w-full mt-2 px-4 py-2 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold"
               >
-                Enroll / Buy Course
+                Buy Course
               </button>
             </div>
           </div>
         </div>
 
-        {/* Right content */}
+        {/* Right: title, description, lectures */}
         <div className="md:col-span-2">
           <button
             onClick={() => navigate(-1)}
@@ -114,11 +125,16 @@ const StudentCourseDetail = () => {
           <h1 className="text-2xl md:text-3xl font-semibold mb-2">
             {course.title}
           </h1>
-          <p className="text-sm text-slate-200 mb-4">{course.description}</p>
+          <p className="text-sm text-slate-200 mb-4">
+            {course.description}
+          </p>
 
-          {Array.isArray(course.lectures) && course.lectures.length > 0 && (
-            <div>
-              <h2 className="text-sm font-semibold mb-2">What you will learn</h2>
+          <div className="mt-4">
+            <h2 className="text-sm font-semibold mb-2">
+              What you will learn
+            </h2>
+
+            {Array.isArray(course.lectures) && course.lectures.length > 0 ? (
               <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
                 {course.lectures.map((lec, idx) => (
                   <div
@@ -139,8 +155,12 @@ const StudentCourseDetail = () => {
                   </div>
                 ))}
               </div>
-            </div>
-          )}
+            ) : (
+              <p className="text-[11px] text-slate-400">
+                Lectures abhi add nahi kiye gaye. Jaldi hi update hoga.
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </div>
