@@ -36,6 +36,10 @@ app.use("/admin", admin);
 const coursePublic = require("./routes/coursePublicRoute");
 app.use("/", coursePublic); // so /courses and /courses/:id work directly
 
+
+const courseController=require("./routes/course");
+app.use("/",courseController);
+
 app.listen(port, () => {
   console.log(`server is running on ${port}`);
 });

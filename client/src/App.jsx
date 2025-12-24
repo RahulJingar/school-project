@@ -1,3 +1,4 @@
+
 // src/App.jsx
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -18,6 +19,7 @@ import StudentCourses from "./studentController/StudentCourses";
 import StudentCourseDetail from "./studentController/StudentCourseDetail";
 import StudentPayment from "./studentController/StudentPayment";
 import PaymentSuccess from "./studentController/PaymentSuccess";
+import StudentMyCourses from "./studentController/StudentMyCourses";
 
 const App = () => {
   return (
@@ -39,10 +41,11 @@ const App = () => {
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={<AllData />} />
 
-        <Route path="/dashboard" element={<StudentCourses />} />
+        <Route path="/courses" element={<StudentCourses />} />
         <Route path="/courses/:id" element={<StudentCourseDetail />} />
         <Route path="/payment" element={<StudentPayment />} />
         <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/my-courses" element={<StudentMyCourses />} />
       </Routes>
     </BrowserRouter>
   );

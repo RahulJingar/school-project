@@ -9,26 +9,26 @@ const UserSignup = () => {
     password: "",
   });
 
-
-
   const navigate = useNavigate();
 
+  // ✅ FIXED: signupUser → userSignup (line 17 was wrong!)
   const signupHandler = (e) => {
-   setUserSignup({
-    ...signupUser,
-    [e.target.name]: e.target.value
-   })
+    setUserSignup({
+      ...userSignup,  // Now uses correct state variable
+      [e.target.name]: e.target.value
+    });
   };
 
   const signupUser = async (e) => {
     e.preventDefault();
 
-    if (!(userSignup.name && userSignup.email && userSignup.password)) {
-      setErrorMsg("Name, email aur password sab required hain");
+    // ✅ Validation before API call
+    if (!userSignup.name || !userSignup.email || !userSignup.password) {
+      alert("Please fill all fields");
       return;
     }
 
-
+    try {
       const res = await axios.post(
         "http://127.0.0.1:2727/schoolUser/signup",
         userSignup
@@ -36,7 +36,6 @@ const UserSignup = () => {
 
       console.log(">>>res>>", res.data);
 
-      // backend: 202 + created user object
       localStorage.setItem(
         "currentStudentDraft",
         JSON.stringify(res.data || userSignup)
@@ -44,6 +43,10 @@ const UserSignup = () => {
 
       alert("Student signup successfully");
       navigate("/login");
+    } catch (error) {
+      console.error("Signup error:", error.response?.data || error.message);
+      alert("Signup failed: " + (error.response?.data?.message || "Try again"));
+    }
   };
 
   return (
@@ -51,7 +54,7 @@ const UserSignup = () => {
       className="min-h-screen w-full bg-cover bg-center bg-no-repeat flex items-center justify-center px-4"
       style={{
         backgroundImage:
-          "url('https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg')",
+        "url('https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg')",
       }}
     >
       <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm" />
@@ -76,8 +79,6 @@ const UserSignup = () => {
             </div>
           </div>
 
-          
-
           <form className="space-y-4" onSubmit={signupUser}>
             <div>
               <label className="block text-xs font-medium text-slate-200 mb-1">
@@ -89,6 +90,8 @@ const UserSignup = () => {
                 placeholder="Enter your full name"
                 value={userSignup.name}
                 onChange={signupHandler}
+                required
+                minLength={2}
                 className="w-full px-3 py-2.5 rounded-2xl bg-slate-800/80 border border-slate-600 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
               />
             </div>
@@ -103,6 +106,7 @@ const UserSignup = () => {
                 placeholder="student.name@school.com"
                 value={userSignup.email}
                 onChange={signupHandler}
+                required
                 className="w-full px-3 py-2.5 rounded-2xl bg-slate-800/80 border border-slate-600 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
               />
             </div>
@@ -117,6 +121,8 @@ const UserSignup = () => {
                 placeholder="Create a strong password"
                 value={userSignup.password}
                 onChange={signupHandler}
+                required
+                minLength={6}
                 className="w-full px-3 py-2.5 rounded-2xl bg-slate-800/80 border border-slate-600 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
               />
             </div>
@@ -128,7 +134,7 @@ const UserSignup = () => {
 
             <button
               type="submit"
-              className="w-full mt-1 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-lime-500 text-white text-sm font-semibold shadow-lg hover:from-emerald-600 hover:to-lime-600 transition-all duration-150 disabled:opacity-60"
+              className="w-full mt-1 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-lime-500 text-white text-sm font-semibold shadow-lg hover:from-emerald-600 hover:to-lime-600 transition-all duration-150"
             >
               Creating account...
             </button>

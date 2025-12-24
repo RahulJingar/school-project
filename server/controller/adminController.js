@@ -11,8 +11,9 @@ const sk = "ashishrahulmanish";
 exports.adminSignup = async (req, res) => {
   try {
     const { name, email, password } = req.body;
-    console.log(`>>> Signup data >>>`, { name, email });
-
+console.log(`>>>>name>>>>`,name);
+console.log(`>>>>email>>>>`,email);
+console.log(`>>>>password>>>>`,password);
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(password, salt);
     console.log(`>>>> Hash generated >>>`);
@@ -27,8 +28,7 @@ exports.adminSignup = async (req, res) => {
       email,
       password: hash
     });
-    console.log(`>>> Admin created >>>`, signupUser._id);
-
+    console.log(`>>>>>signupUser>>>>>`,signupUser);
     const token = jwt.sign({ email, id: signupUser._id }, sk);
     console.log(`>>> token >>>`);
 
@@ -36,11 +36,7 @@ exports.adminSignup = async (req, res) => {
 
     return res.status(201).json({
       message: "Admin created successfully",
-      signupUser: {
-        id: signupUser._id,
-        name: signupUser.name,
-        email: signupUser.email
-      },
+      signupUser,
       token
     });
 
@@ -75,11 +71,7 @@ exports.adminLogin = async (req, res) => {
 
     return res.status(200).json({
       message: "Admin login success",
-      adminUser: {
-        id: adminUser._id,
-        name: adminUser.name,
-        email: adminUser.email
-      },
+      adminUser,
       token
     });
 
@@ -90,7 +82,7 @@ exports.adminLogin = async (req, res) => {
 
 exports.getAllStudents = async (req, res) => {
   try {
-    const students = await schoolUser.find().select("-password -__v");
+    const students = await schoolUser.find();
     return res.status(200).json({
       message: "All students fetched successfully",
       count: students.length,
@@ -127,5 +119,15 @@ exports.getAllCourses = async (req, res) => {
     });
   } catch (error) {
     console.error(">>>>>error>>>>", error);
+  }
+};
+
+
+exports.adminExists = async (req, res) => {
+  try {
+    const count = await admin.countDocuments();
+    return res.status(200).json({ exists: count > 0 });
+  } catch (err) {
+    return res.status(500).json({ message: "Server error", error: err.message });
   }
 };

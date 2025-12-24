@@ -22,7 +22,7 @@ const StudentCourseDetail = () => {
         const res = await axios.get(
           `http://127.0.0.1:2727/getCourseByIdPublic/${id}`
         );
-        setCourse(res.data.data || res.data);
+        setCourse(res.data.data);
       } catch (err) {
         console.error(">>> public course detail error >>>", err);
         setErrorMsg(

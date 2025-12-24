@@ -1,3 +1,4 @@
+// src/controller/TeacherDashboard.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -10,7 +11,7 @@ const TeacherDashboard = () => {
   const navigate = useNavigate();
 
   const teacher = JSON.parse(localStorage.getItem("currentTeacher"));
-  const teacherId = teacher?._id;
+  const teacherId = teacher._id;
   const token = localStorage.getItem("teacherToken");
 
   useEffect(() => {
@@ -19,7 +20,6 @@ const TeacherDashboard = () => {
       return;
     }
     fetchCourses();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [teacherId, token]);
 
   const fetchCourses = async () => {
@@ -28,14 +28,12 @@ const TeacherDashboard = () => {
         "http://127.0.0.1:2727/teacherCourses/myCourses",
         {
           params: { teacherId },
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
-      setCourses(res.data.data || []);
+      setCourses(res.data.data);
     } catch (err) {
-      console.error(">>> fetchCourses error >>>", err);
+      console.error(">>>err>>>", err);
     }
   };
 
@@ -52,23 +50,16 @@ const TeacherDashboard = () => {
 
   return (
     <div
-      className="
-        min-h-screen w-full
-        bg-cover bg-center bg-no-repeat
-        relative
-      "
+      className="min-h-screen w-full bg-cover bg-center bg-no-repeat relative"
       style={{
         backgroundImage:
           "url('https://images.pexels.com/photos/3184328/pexels-photo-3184328.jpeg')",
       }}
     >
-      {/* Overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-950/95 via-slate-900/92 to-indigo-900/85" />
       <div className="pointer-events-none absolute inset-x-4 inset-y-6 border border-white/5 rounded-[32px] bg-slate-900/25" />
 
-      {/* CONTENT */}
       <div className="relative z-10 min-h-screen max-w-7xl mx-auto px-6 py-6 flex flex-col gap-8">
-        {/* Header */}
         <header className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-3">
             <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-xl">
@@ -113,7 +104,6 @@ const TeacherDashboard = () => {
           </div>
         </header>
 
-        {/* Stats */}
         <section className="grid grid-cols-1 sm:grid-cols-3 gap-5">
           <div className="bg-white/8 backdrop-blur-2xl border border-white/15 rounded-3xl p-6 shadow-lg">
             <p className="text-xs text-slate-300 mb-1">Total Courses</p>
@@ -134,19 +124,8 @@ const TeacherDashboard = () => {
               Approx revenue from all active courses.
             </p>
           </div>
-
-          <div className="bg-white/8 backdrop-blur-2xl border border-white/15 rounded-3xl p-6 shadow-lg">
-            <p className="text-xs text-slate-300 mb-1">Published</p>
-            <p className="text-3xl font-bold text-purple-300">
-              {courses.filter((c) => c.status === "published").length}
-            </p>
-            <p className="text-[11px] text-slate-400 mt-2">
-              Courses visible to students right now.
-            </p>
-          </div>
         </section>
 
-        {/* Courses */}
         <section className="bg-white/8 backdrop-blur-2xl border border-white/15 rounded-3xl p-7 shadow-lg flex-1">
           <div className="flex items-center justify-between mb-6">
             <div>
@@ -187,15 +166,6 @@ const TeacherDashboard = () => {
                       alt={course.title}
                       className="w-full h-36 object-cover rounded-2xl"
                     />
-                    <span
-                      className={`absolute top-3 right-3 px-3 py-1 rounded-full text-[11px] font-semibold ${
-                        course.status === "published"
-                          ? "bg-emerald-500/90 text-white"
-                          : "bg-amber-500/90 text-white"
-                      }`}
-                    >
-                      {course.status}
-                    </span>
                   </div>
 
                   <h3 className="font-bold text-white text-[15px] mb-1 line-clamp-2 group-hover:text-indigo-300 transition-colors">
@@ -246,7 +216,10 @@ const TeacherDashboard = () => {
       </div>
 
       {showCreate && (
-        <CreateCourseModal onClose={() => setShowCreate(false)} onCreated={fetchCourses} />
+        <CreateCourseModal
+          onClose={() => setShowCreate(false)}
+          onCreated={fetchCourses}
+        />
       )}
     </div>
   );

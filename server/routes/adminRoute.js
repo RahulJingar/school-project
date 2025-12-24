@@ -1,17 +1,22 @@
 const express=require("express");
 const router=express.Router();
 const admin=require("../controller/adminController");
+const adminAuth = require("../middleware/adminAuth");
 
 
 router.post("/adminSignup",admin.adminSignup);
 router.post("/adminLogin",admin.adminLogin);
-// router.get("/getAllStudents",admin.getAllStudents);
-// router.get("/getAllTeachers",admin.getAllTeachers);
-// router.get("/getAllCourses",admin.getAllCourses);
 
-router.get("/students", admin.getAllStudents);
-router.get("/teachers", admin.getAllTeachers);
-router.get("/courses", admin.getAllCourses);
+
+router.get("/students",adminAuth, admin.getAllStudents);
+router.get("/teachers",adminAuth, admin.getAllTeachers);
+router.get("/courses",adminAuth, admin.getAllCourses);
+router.get("/adminExists", admin.adminExists);
+
 
 
 module.exports = router;
+
+
+
+
