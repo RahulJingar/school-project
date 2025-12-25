@@ -1,7 +1,7 @@
-
 // src/controller/UserLogin.jsx
 import React, { useState } from "react";
-import axios from "axios";
+import { useDispatch } from 'react-redux';  // ← Redux dispatch
+import { studentLogin } from '../store/slices/authSlice';  // ← Redux action
 import { useNavigate } from "react-router-dom";
 
 const UserLogin = () => {
@@ -9,13 +9,14 @@ const UserLogin = () => {
     email: "",
     password: "",
   });
+  const dispatch = useDispatch();  // ← Redux dispatch
   const navigate = useNavigate();
 
   const loginHandle = (e) => {
     setLoginData({
       ...logindata,
       [e.target.name]: e.target.value
-    })
+    });
   };
 
   const loginHandler = async (e) => {
@@ -26,26 +27,23 @@ const UserLogin = () => {
       return;
     }
 
-    const res = await axios.post(
-      "http://127.0.0.1:2727/schoolUser/login",
-      logindata
-    );
+    try {
+      // Redux action dispatch karo (localStorage + store dono update honge)
+      const result = await dispatch(studentLogin(logindata)).unwrap();
+      
+      console.log(">>> Redux Login Success >>>", result);
+      
+      setLoginData({
+        email: "",
+        password: ""
+      });
 
-    console.log(">>>Res>>", res.data);
-
-    const token = res.data.token;
-    const user = res.data.data;
-
-    setLoginData({
-      email: "",
-      password: ""
-    });
-
-    localStorage.setItem("studentToken", token);
-    localStorage.setItem("currentStudent", JSON.stringify(user));
-
-    alert("Student login successfully");
-    navigate("/courses"); 
+      alert("Student login successfully");
+      navigate("/courses");
+    } catch (error) {
+      console.error(">>> Login Error >>>", error);
+      alert(error || "Login failed");
+    }
   };
 
   return (
