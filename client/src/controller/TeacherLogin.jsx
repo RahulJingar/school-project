@@ -47,7 +47,7 @@ const TeacherLogin = () => {
   };
 
   const forgetHandle = () => {
-    navigate("/forget");
+    navigate("/teacher/forget");
   };
 
   return (

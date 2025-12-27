@@ -68,7 +68,7 @@ const Forget = () => {
         {/* Right: Original form, styled */}
         <div className="md:w-1/2 bg-white/10 backdrop-blur-2xl border border-white/20 rounded-3xl p-8 shadow-[0_18px_50px_rgba(0,0,0,0.65)]">
           <h1 className="text-2xl font-bold text-white mb-6 text-center">
-            Teacher Password Reset
+            Teacher Password Forget
           </h1>
 
           <form onSubmit={forgetHandler} className="space-y-5">

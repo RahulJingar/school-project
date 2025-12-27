@@ -51,3 +51,36 @@ exports.userLogin = async (req, res) => {
     token,
   });
 };
+
+
+exports.userForget=async(req,res)=>{
+  const {email,newPassword}=req.body;
+  console.log(`>>email>>`,email);
+  console.log(`>>newPassword>>`,newPassword);
+  if(!(email&&newPassword)){
+    return res.status(400).send({message: "all input field are required"});
+  }
+
+  const existUser=await schoolUser.findOne({email});
+  console.log(`>>>>existUser`,existUser);
+
+  const dbPassword=existUser.password;
+  console.log(`>>>dbPassword>>>`,dbPassword);
+
+  const salt=bcrypt.genSaltSync(10);
+  const hash=bcrypt.hashSync(newPassword,salt);
+
+  console.log(`>>>hash>>`,hash);
+
+  const data={
+    password: hash
+  }
+
+  const id=existUser._id;
+  const result=await schoolUser.findOneAndUpdate(id,data);
+
+  if(result){
+    return res.status(202).send({message: "forget successfully",result});
+  }
+
+}

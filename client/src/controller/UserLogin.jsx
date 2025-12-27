@@ -42,7 +42,7 @@ const UserLogin = () => {
       navigate("/courses");
     } catch (error) {
       console.error(">>> Login Error >>>", error);
-      alert(error || "Login failed");
+      alert("Login failed");
     }
   };
 
